@@ -1,0 +1,12 @@
+h1 {
+  color: #d20062;
+  text-align: center;
+}
+.user-input {
+  font-size: 25px;
+}
+
+#btn-login {
+  width: 60px;
+  height: 45px;
+}
