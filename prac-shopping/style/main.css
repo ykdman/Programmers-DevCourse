@@ -1,0 +1,44 @@
+* {
+  box-sizing: border-box;
+}
+
+#page_title {
+  text-align: center;
+  font-size: 3rem;
+  margin: 1.5rem auto;
+}
+
+#page_description {
+  text-align: center;
+  font-size: 1.4rem;
+}
+
+.card_page {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.card_item {
+  text-align: center;
+  margin: 2rem;
+}
+
+.card_item .card_img {
+  width: 24rem;
+  height: 16rem;
+}
+
+.card_item .card_title {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.card_item .card_btn {
+  text-align: center;
+  display: block;
+  width: 70%;
+  height: 10%;
+  font-size: 1.2rem;
+  margin: 0 auto;
+}

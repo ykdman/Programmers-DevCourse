@@ -1,0 +1,16 @@
+#page_title {
+  text-align: center;
+}
+.goback-btn {
+  display: block;
+  text-align: center;
+}
+
+.order_table {
+  border: 1px solid #000;
+  text-align: center;
+  margin: 1rem auto;
+}
+.order_table tr {
+  text-align: center;
+}
