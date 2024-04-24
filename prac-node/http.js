@@ -1,8 +1,9 @@
-let http = require('http');
+let http = require("http");
 
 function onRequest(req, res) {
-  res.writeHead(200, { 'Content-Type': 'text/html' });
-  res.writeHead('Hello world');
+  console.log("connected");
+  res.writeHead(200, { "Content-Type": "text/html" });
+  res.write("Hello world");
   res.end();
 }
 
