@@ -1,0 +1,17 @@
+{
+  "name": "prac-express",
+  "version": "1.0.0",
+  "description": "express pracite",
+  "main": "app.js",
+  "scripts": {
+    "test": "test"
+  },
+  "keywords": [
+    "express"
+  ],
+  "author": "ykdman",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}
