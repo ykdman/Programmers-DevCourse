@@ -1,3 +1,8 @@
+const { db, db2 } = require("./map-demo");
+
+console.log(db);
+console.log(db2);
+
 const express = require("express");
 const port = 3000;
 
@@ -7,6 +12,20 @@ const app = express();
 // root url response
 app.get("/", (req, res) => {
   res.send("Hello World");
+});
+
+app.get("/:id", (req, res) => {
+  let { id } = req.params;
+  id = +id;
+  if (db.get(id) === undefined) {
+    res.json({
+      message: "없는 메세지 입니다.",
+    });
+  } else {
+    const product = { ...db.get(id) };
+    product.id = id;
+    res.json(product);
+  }
 });
 
 /**app.get
