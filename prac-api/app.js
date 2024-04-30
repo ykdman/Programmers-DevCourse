@@ -1,7 +1,8 @@
 const express = require("express");
 const app = express();
 const PORT = 3000;
-const articles = [];
+const initialArticle = { title: "art1", id: "a1", date: "2024-04-30" };
+let articles = [{ ...initialArticle }];
 
 /**
  * Article 중복확인 함수
@@ -36,12 +37,31 @@ function updateArticleItem(updateArticle) {
 app.use(express.json({ extended: true }));
 app.use(express.urlencoded({ extended: true }));
 
+/** API */
 app.get("/", (req, res) => {
   res.send("API Test Section");
 });
 
 app.get("/articles", (req, res) => {
-  res.send(articles);
+  const articleList = {};
+  articles.forEach((article) => {
+    articleList[article.title] = {
+      id: article.id,
+      date: article.date,
+    };
+  });
+  res.send(articleList);
+});
+
+app.delete("/articles", (req, res) => {
+  if (articles.length > 0) {
+    articles.splice(0, articles.length);
+    res.send("모든 article이 삭제 되었습니다.");
+  } else {
+    res.json({
+      message: "저장된 article이 없습니다.",
+    });
+  }
 });
 
 app.get("/articles/:title", (req, res) => {
@@ -69,6 +89,35 @@ app.post("/articles/:title", (req, res) => {
   };
   updateArticleItem(updateArticle);
   res.send(articles);
+});
+
+app.delete("/articles/:title", (req, res) => {
+  const { title } = req.params;
+  const articleIndex = articles.findIndex((article) => article.title === title);
+  console.log(articleIndex);
+  if (articleIndex > -1) {
+    articles = articles.filter((article) => article.title !== title); // 자르기
+  } else {
+    res.send(`${title} 제목을 가진 article이 존재하지 않습니다.`);
+    return;
+  }
+  res.json(articles);
+});
+
+app.put("/articles/:title", (req, res) => {
+  const { title } = req.params;
+  const { body } = req;
+  const articleIndex = articles.findIndex((article) => article.title === title);
+
+  if (articleIndex > -1) {
+    const updateArticle = { ...articles[articleIndex], ...body };
+    articles.splice(articleIndex, 1, updateArticle);
+    res.json(articles);
+  } else {
+    res.json({
+      message: `${title} 에 해당하는 article 이 없습니다.`,
+    });
+  }
 });
 
 app.listen(PORT, () => {
