@@ -36,6 +36,11 @@ app.get("/test", (req, res) => {
   res.send("Test API");
 });
 
+// '/test' POST
+app.post("/user", (req, res) => {
+  res.send("hello world");
+});
+
 app.get("/hello", (req, res) => {
   res.send("안녕하세여");
 });
