@@ -5,7 +5,7 @@ const { body } = require("express-validator");
 const {
   userJoin,
   userLogin,
-  applyResetPassword,
+  requestResetPassword,
   acceptResetPassword,
 } = require("../controller/users.controller.js");
 
@@ -34,7 +34,7 @@ router.post(
 router.post("/login", userLogin);
 
 // 비밀번호 초기화 요청
-router.post("/reset", applyResetPassword);
+router.post("/reset", requestResetPassword);
 
 // 비밀번호 초기화
 router.put("/reset", acceptResetPassword);

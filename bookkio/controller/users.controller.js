@@ -1,4 +1,9 @@
 const dbConnection = require("../model/mysql.js");
+const { StatusCodes } = require("http-status-codes");
+const crypto = require("crypto");
+const jwt = require("jsonwebtoken");
+const dotenv = require("dotenv");
+dotenv.config();
 
 /**
  * 회원가입 로직
@@ -8,30 +13,40 @@ const dbConnection = require("../model/mysql.js");
  */
 const userJoin = (req, res, next) => {
   const { email, password, username } = req.body;
-  let querySql = `
+
+  // crypt password
+  const salt = crypto.randomBytes(10).toString("base64");
+  const hashedPassword = crypto
+    .pbkdf2Sync(password, salt, 10000, 10, "sha512")
+    .toString("base64");
+
+  let sqlQuery = `
     SELECT * FROM users
     WHERE email = ?
   `;
-  dbConnection.query(querySql, email, (err, result) => {
+  dbConnection.query(sqlQuery, email, (err, result) => {
     if (err) {
       // Query Error
-      return res.json(err.message);
+      return res
+        .status(StatusCodes.SERVICE_UNAVAILABLE)
+        .json(err.message)
+        .end();
     }
 
     if (!result[0]) {
       // no rows => 200
-      querySql = `INSERT INTO users 
-      (email, username, password) 
+      sqlQuery = `INSERT INTO users 
+      (email, username, password, salt) 
       VALUES 
-      (?, ? ,?)`;
+      (?, ?, ?, ?)`;
       dbConnection.query(
-        querySql,
-        [email, username, password],
+        sqlQuery,
+        [email, username, hashedPassword, salt],
         (err, result) => {
           if (err) {
             return res.json(err);
           }
-          return res.status(200).json({
+          return res.status(StatusCodes.CREATED).json({
             email,
             password,
             username,
@@ -40,7 +55,9 @@ const userJoin = (req, res, next) => {
         }
       );
     } else {
-      res.status(400).json({ email, message: "이미 가입된 회원입니다." });
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ email, message: "이미 가입된 회원입니다." });
     }
   });
 };
@@ -53,7 +70,48 @@ const userJoin = (req, res, next) => {
  */
 const userLogin = (req, res, next) => {
   const { email, password } = req.body;
-  return res.status(200).json({ message: "로그인 API" });
+
+  let sqlQuery = `
+    SELECT * FROM users
+    WHERE email = ?
+  `;
+  // email 존재 확인
+  dbConnection.query(sqlQuery, email, (err, result) => {
+    if (err) {
+      return res.status(StatusCodes.SERVICE_UNAVAILABLE);
+    }
+
+    const existUser = result[0];
+    // 입력 비밀번호 를 DB salt 기반 암호화 하여 비밀번호 비교
+    const inputHashPassword = crypto
+      .pbkdf2Sync(password, existUser.salt, 10000, 10, "sha512")
+      .toString("base64");
+
+    if (existUser && inputHashPassword === existUser.password) {
+      // 로그인 성공
+      const token = jwt.sign(
+        {
+          email: existUser.email,
+        },
+        process.env.PRIVATE_KEY,
+        {
+          expiresIn: "5m",
+          issuer: "kdman",
+        }
+      );
+      // token 쿠키 설정
+      res.cookie("token", token, {
+        httpOnly: true,
+      });
+
+      return res.status(StatusCodes.OK).json(existUser);
+    } else {
+      // email 미 존재시, 404
+      return res
+        .status(StatusCodes.UNAUTHORIZED)
+        .json({ message: "존재하지 않는 이메일입니다." });
+    }
+  });
 };
 
 /**
@@ -62,9 +120,22 @@ const userLogin = (req, res, next) => {
  * @param {import("express").Response} res
  * @param {import("express").NextFunction} next
  */
-const applyResetPassword = (req, res, next) => {
+const requestResetPassword = (req, res, next) => {
   const { email } = req.body;
-  return res.status(200).json({ message: `${email} 로 비밀번호 초기화 요청` });
+  let sqlQuery = `SELECT * FROM users WHERE email=?`;
+  dbConnection.query(sqlQuery, [email], (err, result) => {
+    if (err) {
+      console.log(err);
+      return res.status(StatusCodes.BAD_REQUEST).end();
+    }
+
+    const existUser = result[0];
+    if (existUser) {
+      return res.status(StatusCodes.OK).json({ email });
+    } else {
+      return res.status(StatusCodes.FORBIDDEN).end();
+    }
+  });
 };
 
 /**
@@ -74,13 +145,32 @@ const applyResetPassword = (req, res, next) => {
  * @param {import("express").NextFunction} next
  */
 const acceptResetPassword = (req, res, next) => {
-  const { password } = req.body;
-  return res.status(201).json({ message: "비밀번호 변경 완료" });
+  const { email, password } = req.body;
+  const salt = crypto.randomBytes(10).toString("base64");
+  const hashedPassword = crypto
+    .pbkdf2Sync(password, salt, 10000, 10, "sha512")
+    .toString("base64");
+  let sqlQuery = `
+    UPDATE users SET password = ?, salt = ? 
+    WHERE email =?
+  `;
+  dbConnection.query(sqlQuery, [hashedPassword, salt, email], (err, result) => {
+    if (err) {
+      console.log(err);
+      return res.status(StatusCodes.BAD_REQUEST);
+    }
+
+    if (result.affectedRows > 0) {
+      return res.status(StatusCodes.OK).json(result[0]);
+    } else {
+      return res.status(StatusCodes.BAD_REQUEST).end();
+    }
+  });
 };
 
 module.exports = {
   userJoin,
   userLogin,
-  applyResetPassword,
+  requestResetPassword,
   acceptResetPassword,
 };
