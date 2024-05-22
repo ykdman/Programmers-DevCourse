@@ -21,6 +21,10 @@ router.post(
       .isEmail()
       .withMessage("이메일을 올바르게 입력해주세요."),
     body("password").notEmpty().withMessage("비밀번호를 입력해주세요."),
+    body("username")
+      .notEmpty()
+      .withMessage("사용자 이름을 입력해주세요")
+      .isLength({ min: 2, max: 5 }),
     requestValidator,
   ],
   userJoin
