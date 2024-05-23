@@ -10,4 +10,23 @@ const connection = mysql.createConnection({
   database: "bookkio",
 });
 
+const getCategory = (category_id) => {
+  let sqlQuery = category_id
+    ? `SELECT * FROM category WHERE id=${+category_id}`
+    : `SELECT * FROM category`;
+
+  connection.query(sqlQuery, (err, results) => {
+    if (err) {
+      console.log(err);
+      return err;
+    }
+
+    if (results.length > 0) {
+      return results;
+    } else {
+      return [];
+    }
+  });
+};
+
 module.exports = connection;

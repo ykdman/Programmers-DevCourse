@@ -104,7 +104,7 @@ const userLogin = (req, res, next) => {
         httpOnly: true,
       });
 
-      return res.status(StatusCodes.OK).json(existUser);
+      return res.status(StatusCodes.OK).json({ message: "로그인되었습니다." });
     } else {
       // email 미 존재시, 404
       return res
