@@ -20,7 +20,7 @@ const searchBooks = (req, res, next) => {
   //카테고리 검색
   if (category_id) {
     let sqlQuery = `
-    SELECT * FROM books LEFT 
+    SELECT *, (SELECT COUNT(*) from likes WHERE book_id = books.id) AS likes FROM books LEFT 
     JOIN category ON books.category_id = category.id
     WHERE books.category_id = ?
     LIMIT ? OFFSET ?;
@@ -45,7 +45,7 @@ const searchBooks = (req, res, next) => {
   } else {
     // 전체 도서 조회
     let sqlQuery = `
-    SELECT * FROM books
+    SELECT *, (SELECT COUNT(*) from likes WHERE book_id = books.id) AS likes FROM books
     LIMIT ? OFFSET ?
     `;
     dbConnection.query(sqlQuery, [+limit, offset], (err, results) => {
@@ -63,6 +63,7 @@ const searchBooks = (req, res, next) => {
             author: book.author,
             price: book.price,
             pub_date: book.pub_date,
+            likes: book.likes,
           };
           return resultBook;
         });
@@ -80,11 +81,17 @@ const searchBooks = (req, res, next) => {
  */
 const searchOneBook = (req, res, next) => {
   const { bookId } = req.params;
+  const { userId } = req.body;
   let sqlQuery = `
-    SELECT * FROM books
-    WHERE id=?;
+  SELECT *,
+  (SELECT COUNT(*) FROM likes WHERE book_id = books.id) AS likes,
+  (SELECT EXISTS (SELECT * FROM likes WHERE user_id=? AND book_id=?)) AS liked
+  FROM books
+  LEFT JOIN category
+  ON books.category_id = category.category_id
+  WHERE books.id= ?;
   `;
-  dbConnection.query(sqlQuery, [+bookId], (err, results) => {
+  dbConnection.query(sqlQuery, [+userId, +bookId, +bookId], (err, results) => {
     if (err) {
       console.log(err);
       return res.status(StatusCodes.BAD_REQUEST).end();
@@ -110,7 +117,7 @@ const getNewBooks = (req, res, next) => {
   const offset = +limit * (+currentpage - 1);
 
   let sqlQuery = `
-  SELECT * FROM bookkio.books
+  SELECT *, (SELECT COUNT(*) from likes WHERE book_id = books.id) AS likes FROM bookkio.books
   WHERE pub_date BETWEEN DATE_SUB(NOW(), INTERVAL 1 MONTH) AND NOW()
   LIMIT ? OFFSET ?
   `;
