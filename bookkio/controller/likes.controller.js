@@ -9,20 +9,35 @@ const { StatusCodes } = require("http-status-codes");
 const addLike = (req, res) => {
   const { userId } = req.body;
   const { bookId } = req.params;
+  const queryArg = [+userId, +bookId];
 
   let sqlQuery = `
-  INSERT INTO likes (user_id, book_id)
-  VALUES (?, ?);
+  SELECT * FROM likes
+  WHERE user_id = ? AND book_id = ?;
   `;
 
-  dbConnection.query(sqlQuery, [+userId, +bookId], (err, result) => {
-    if (err) {
+  dbConnection.query(sqlQuery, queryArg, (err, result) => {
+    if (err) return res.status(StatusCodes.BAD_REQUEST).end();
+
+    if (result.length === 0) {
+      sqlQuery = `
+        INSERT INTO likes (user_id, book_id)
+        VALUES (?, ?);
+        `;
+      dbConnection.query(sqlQuery, queryArg, (err, result) => {
+        if (err) {
+          return res
+            .status(StatusCodes.BAD_REQUEST)
+            .json({ message: "잘못된 요청정보 입니다." });
+        }
+
+        return res.status(StatusCodes.OK).json(result.affectedRows);
+      });
+    } else {
       return res
         .status(StatusCodes.BAD_REQUEST)
-        .json({ message: "잘못된 요청정보 입니다." });
+        .json({ message: "이미 좋아요를 눌렀습니다." });
     }
-
-    return res.status(StatusCodes.OK).json(result.affectedRows);
   });
 };
 
@@ -35,7 +50,6 @@ const addLike = (req, res) => {
 const deleteLike = (req, res) => {
   const { userId } = req.body;
   const { bookId } = req.params;
-
   let sqlQuery = `
     DELETE FROM likes
     WHERE user_id=? AND book_id=?;
