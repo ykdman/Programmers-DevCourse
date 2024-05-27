@@ -99,24 +99,6 @@ const searchOneBook = (req, res, next) => {
   });
 };
 
-const searchBookByCategory = (req, res, next) => {
-  const { category_id } = req.query;
-  let sqlQuery = `SELECT * FROM books WHERE category_id=?`;
-
-  dbConnection.query(sqlQuery, +category_id, (err, results) => {
-    if (err) {
-      console.log(err);
-      return res.status(StatusCodes.BAD_REQUEST);
-    }
-
-    if (results.length > 0) {
-      return res.status(StatusCodes.OK).json(results);
-    } else {
-      return res.status(StatusCodes.NOT_FOUND).end();
-    }
-  });
-};
-
 /**
  * 1달 이내 출간된 신간 도서 조회
  * @param {import("express").Request} req
