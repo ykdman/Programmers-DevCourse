@@ -2,10 +2,16 @@ const express = require("express");
 const {
   addItemToCart,
   getAllCartItems,
+  decreaseCartItem,
+  removeCartItem,
 } = require("../controller/cart.controller");
 const router = express.Router();
 
-router.post("/", addItemToCart);
-router.get("/", getAllCartItems);
+router
+  .route("/")
+  .post(addItemToCart)
+  .get(getAllCartItems)
+  .delete(removeCartItem);
+router.post("/decrease", decreaseCartItem);
 
 module.exports = router;
