@@ -8,6 +8,7 @@ const connection = mysql.createConnection({
   user: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,
   database: "bookkio",
+  multipleStatements: true,
 });
 
 const getCategory = (category_id) => {

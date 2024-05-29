@@ -89,4 +89,9 @@ SELECT max(id) FROM Bookshop.orderedBook;
 SELECT last_insert_id();
 
 -- // 결제된 도서 장바구니 삭제
-DELETE FROM cartItems WHERE id IN (1,2,3); 
+DELETE FROM cartItems WHERE id IN (1,2,3);
+
+
+-- 주문하기
+-- 배송정보 입력
+INSERT INTO delivery (address, receiver, contact) VALUES ("서울시 강서구", "윤경덕", "010-0000-0000")
