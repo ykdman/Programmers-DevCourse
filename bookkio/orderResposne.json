@@ -1,0 +1,29 @@
+{
+  "items": [
+    {
+      "cartItemId": "장바구니 도서 ID",
+      "bookId": "도서 ID",
+      "qty": "주문수량 INT"
+    },
+    {
+      "cartItemId": "장바구니 도서 ID",
+      "bookId": "도서 ID",
+      "qty": "주문수량 INT"
+    },
+    {
+      "cartItemId": "장바구니 도서 ID",
+      "bookId": "도서 ID",
+      "qty": "주문수량 INT"
+    }
+  ],
+  "delivery": {
+    "address": "주소",
+    "receiver": "수령인 이름",
+    "contact": "010-0000-000"
+  },
+  "orders": {
+    "totalPrice": "총금액",
+    "totalQty": "총 수량",
+    "userId": "사용자"
+  }
+}
