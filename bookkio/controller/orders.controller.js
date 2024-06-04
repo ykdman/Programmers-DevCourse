@@ -1,5 +1,6 @@
 const dbConnection = require("../model/mysql.js");
 const { StatusCodes } = require("http-status-codes");
+const { extractId } = require("../utils/auth.js");
 
 // const createQueryFormat = (query, queryArgument) => {
 //   let format;
@@ -13,7 +14,8 @@ const { StatusCodes } = require("http-status-codes");
  * @param {import("express").Response} res
  */
 const orderItems = (req, res) => {
-  const { items, delivery, totalPrice, totalQty, userId } = req.body;
+  const { items, delivery, totalPrice, totalQty } = req.body;
+  const userId = extractId(req);
   console.log({
     items,
     delivery,
@@ -28,7 +30,7 @@ const orderItems = (req, res) => {
   VALUES (?,?,?);
   `;
   const queryArg1 = [delivery.address, delivery.receiver, delivery.contact];
-  const format1 = dbConnection.format(sqlQuery1, queryArg1);
+  const format1 = dbConnection.format(sqlQuery1, queryArg1); // => String (쿼리문)
 
   console.log("포맷 1");
   console.log(format1);
@@ -106,7 +108,7 @@ const orderItems = (req, res) => {
  * @returns
  */
 const getOrderList = (req, res) => {
-  const { userId } = req.body;
+  const userId = extractId(req);
 
   let sqlQuery = `
   SELECT orders.id AS order_id,
@@ -121,7 +123,7 @@ const getOrderList = (req, res) => {
   delivery.contact AS delivery_contact
   FROM orders LEFT 
   JOIN delivery ON delivery.id = orders.delivery_id
-  WHERE orders.id = ?;
+  WHERE orders.user_id = ?;
   `;
   let queryArg = [+userId];
 

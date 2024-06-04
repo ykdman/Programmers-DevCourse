@@ -1,5 +1,8 @@
+const { verify } = require("jsonwebtoken");
 const dbConnection = require("../model/mysql.js");
 const { StatusCodes } = require("http-status-codes");
+const dotenv = require("dotenv");
+dotenv.config();
 
 /**
  * 좋아요 추가 API
@@ -7,9 +10,14 @@ const { StatusCodes } = require("http-status-codes");
  * @param {import("express").Response} res
  */
 const addLike = (req, res) => {
-  const { userId } = req.body;
   const { bookId } = req.params;
-  const queryArg = [+userId, +bookId];
+  const { token } = req;
+  // let userJwt = req.headers.authorization;
+  // console.log("receiver JWT : ", userJwt);
+
+  // let verifiedJwt = verify(userJwt, process.env.PRIVATE_KEY);
+  // console.log(verifiedJwt);
+  const queryArg = [+token.id, +bookId];
 
   let sqlQuery = `
   SELECT * FROM likes
@@ -48,13 +56,13 @@ const addLike = (req, res) => {
  * @returns
  */
 const deleteLike = (req, res) => {
-  const { userId } = req.body;
+  const { token } = req;
   const { bookId } = req.params;
   let sqlQuery = `
     DELETE FROM likes
     WHERE user_id=? AND book_id=?;
   `;
-  dbConnection.query(sqlQuery, [+userId, +bookId], (err, result) => {
+  dbConnection.query(sqlQuery, [+token.id, +bookId], (err, result) => {
     if (err) {
       return res
         .status(StatusCodes.BAD_REQUEST)

@@ -9,6 +9,7 @@ const { StatusCodes } = require("http-status-codes");
  */
 const searchBooks = (req, res, next) => {
   let { category_id, limit, currentpage } = req.query;
+  const token = req.token;
 
   if (!limit || !currentpage) {
     limit = !limit ? 5 : limit;
@@ -19,8 +20,15 @@ const searchBooks = (req, res, next) => {
 
   //카테고리 검색
   if (category_id) {
-    let sqlQuery = `
+    let sqlQuery = token
+      ? `
     SELECT *, (SELECT COUNT(*) from likes WHERE book_id = books.id) AS likes FROM books LEFT 
+    JOIN category ON books.category_id = category.id
+    WHERE books.category_id = ?
+    LIMIT ? OFFSET ?;
+    `
+      : `
+    SELECT * FROM books LEFT 
     JOIN category ON books.category_id = category.id
     WHERE books.category_id = ?
     LIMIT ? OFFSET ?;
@@ -44,8 +52,15 @@ const searchBooks = (req, res, next) => {
     );
   } else {
     // 전체 도서 조회
-    let sqlQuery = `
+
+    console.log(token);
+    let sqlQuery = token
+      ? `
     SELECT *, (SELECT COUNT(*) from likes WHERE book_id = books.id) AS likes FROM books
+    LIMIT ? OFFSET ?
+    `
+      : `
+    SELECT * FROM books
     LIMIT ? OFFSET ?
     `;
     dbConnection.query(sqlQuery, [+limit, offset], (err, results) => {
@@ -56,18 +71,32 @@ const searchBooks = (req, res, next) => {
 
       if (results[0]) {
         const books = results.map((book) => {
-          const resultBook = {
-            id: book.id,
-            title: book.title,
-            summary: book.summary,
-            author: book.author,
-            price: book.price,
-            pub_date: book.pub_date,
-            likes: book.likes,
-          };
+          const resultBook = token
+            ? {
+                id: book.id,
+                title: book.title,
+                summary: book.summary,
+                author: book.author,
+                price: book.price,
+                pub_date: book.pub_date,
+                likes: book.likes,
+              }
+            : {
+                id: book.id,
+                title: book.title,
+                summary: book.summary,
+                author: book.author,
+                price: book.price,
+                pub_date: book.pub_date,
+              };
           return resultBook;
         });
-        return res.status(StatusCodes.OK).json(books);
+
+        const totalBooks = books.length;
+        currentpage = +currentpage;
+        return res
+          .status(StatusCodes.OK)
+          .json({ books: books, totalBooks, currentpage });
       }
     });
   }
@@ -81,8 +110,10 @@ const searchBooks = (req, res, next) => {
  */
 const searchOneBook = (req, res, next) => {
   const { bookId } = req.params;
-  const { userId } = req.body;
-  let sqlQuery = `
+  const token = req.token;
+  const userId = token?.id;
+  let sqlQuery = token
+    ? `
   SELECT *,
   (SELECT COUNT(*) FROM likes WHERE book_id = books.id) AS likes,
   (SELECT EXISTS (SELECT * FROM likes WHERE user_id=? AND book_id=?)) AS liked
@@ -90,8 +121,18 @@ const searchOneBook = (req, res, next) => {
   LEFT JOIN category
   ON books.category_id = category.category_id
   WHERE books.id= ?;
+  `
+    : `
+  SELECT *,
+  (SELECT COUNT(*) FROM likes WHERE book_id = books.id) AS likes
+  FROM books
+  LEFT JOIN category
+  ON books.category_id = category.category_id
+  WHERE books.id= ?;
   `;
-  dbConnection.query(sqlQuery, [+userId, +bookId, +bookId], (err, results) => {
+
+  let queryArg = token ? [+userId, +bookId, +bookId] : [+bookId, +bookId];
+  dbConnection.query(sqlQuery, queryArg, (err, results) => {
     if (err) {
       console.log(err);
       return res.status(StatusCodes.BAD_REQUEST).end();
@@ -115,9 +156,16 @@ const searchOneBook = (req, res, next) => {
 const getNewBooks = (req, res, next) => {
   const { limit, currentpage } = req.query;
   const offset = +limit * (+currentpage - 1);
+  const token = req.token;
 
-  let sqlQuery = `
+  let sqlQuery = token
+    ? `
   SELECT *, (SELECT COUNT(*) from likes WHERE book_id = books.id) AS likes FROM bookkio.books
+  WHERE pub_date BETWEEN DATE_SUB(NOW(), INTERVAL 1 MONTH) AND NOW()
+  LIMIT ? OFFSET ?
+  `
+    : `
+  SELECT * FROM bookkio.books
   WHERE pub_date BETWEEN DATE_SUB(NOW(), INTERVAL 1 MONTH) AND NOW()
   LIMIT ? OFFSET ?
   `;

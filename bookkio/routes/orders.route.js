@@ -6,6 +6,10 @@ const {
   getOrderList,
   orderItems,
 } = require("../controller/orders.controller.js");
+const { checkAuth } = require("../utils/auth.js");
+
+// 사용자 인증
+router.use(checkAuth);
 
 // 주문하기 API
 router.post("/", orderItems);

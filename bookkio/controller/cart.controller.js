@@ -1,5 +1,7 @@
 const dbConnection = require("../model/mysql.js");
 const { StatusCodes } = require("http-status-codes");
+const { extractId } = require("../utils/auth.js");
+
 /**
  * 장바구니에 아이템 담기 로직
  * @param {import("express").Request} req
@@ -7,7 +9,8 @@ const { StatusCodes } = require("http-status-codes");
  * @param {import("express").NextFunction} next
  */
 const addItemToCart = (req, res, next) => {
-  const { bookId, userId } = req.body;
+  const { bookId } = req.body;
+  const userId = extractId(req);
 
   let sqlQuery = `
     SELECT * FROM cartitems
@@ -63,7 +66,7 @@ const addItemToCart = (req, res, next) => {
  * @param {import("express").NextFunction} next
  */
 const getAllCartItems = (req, res, next) => {
-  const { userId } = req.body;
+  const userId = extractId(req);
   let sqlQuery = `
   SELECT cartitems.id AS cart_id, 
   books.price AS book_price, 
@@ -94,7 +97,9 @@ const getAllCartItems = (req, res, next) => {
  * @param {import("express").Response} res
  */
 const decreaseCartItem = (req, res) => {
-  const { userId, bookId } = req.body;
+  const { bookId } = req.body;
+  const { token } = req;
+  const { id: userId } = token;
 
   let sqlQuery = `
   SELECT * FROM cartitems
@@ -150,7 +155,8 @@ const decreaseCartItem = (req, res) => {
  * @param {import("express").Response} res
  */
 const removeCartItem = (req, res) => {
-  const { userId, bookId } = req.body;
+  const { bookId } = req.body;
+  const userId = extractId(req);
 
   let sqlQuery = `
   DELETE FROM cartitems

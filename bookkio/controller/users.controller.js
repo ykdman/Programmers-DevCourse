@@ -91,11 +91,12 @@ const userLogin = (req, res, next) => {
       // 로그인 성공
       const token = jwt.sign(
         {
+          id: existUser.id,
           email: existUser.email,
         },
         process.env.PRIVATE_KEY,
         {
-          expiresIn: "5m",
+          expiresIn: "1h",
           issuer: "kdman",
         }
       );
