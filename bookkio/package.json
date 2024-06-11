@@ -17,5 +17,8 @@
     "jsonwebtoken": "^9.0.2",
     "morgan": "~1.9.1",
     "mysql2": "^3.9.7"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^8.4.1"
   }
 }
