@@ -1,0 +1,81 @@
+button {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+.container {
+  /* max-width: 800px; */
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #282c34;
+  color: white;
+  text-align: center;
+}
+
+.board {
+  background-color: aliceblue;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0 0.1);
+  overflow: hidden;
+  color: #282c34;
+  padding: 20px;
+  margin: auto;
+}
+
+.todo-list {
+  height: max-content;
+  margin: 0 auto;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+
+  width: 100%;
+}
+
+.todo-list-item {
+  margin: 8px 0;
+  text-decoration: none;
+  list-style: none;
+  display: flex;
+  justify-content: start;
+  align-items: center;
+
+  font-size: 1.4rem;
+  width: 100%;
+}
+
+.todo-list-item input[type="checkbox"] {
+  width: 1.4rem;
+  height: 1.4rem;
+  margin-right: 1rem;
+}
+.todo-list-item span,
+.todo-list-item del {
+  margin-right: 1rem;
+}
+
+.todo-gen-button {
+  background: #219c90;
+  margin: 0 0.8rem;
+  height: 2.4rem;
+  cursor: pointer;
+}
+
+.todo-gen-button:hover {
+  background: #95d2b3;
+}
+
+.todo-gen-button:active {
+  background: #55ad9b;
+}
+
+.todo-generator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.todo-generator button {
+  margin-left: 8px;
+}
