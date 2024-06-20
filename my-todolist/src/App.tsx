@@ -30,6 +30,8 @@ const initialTodos: TodoType[] = [
 
 function App() {
   const [todos, setTodos] = useState<TodoType[]>(initialTodos);
+  const [showDetail, setShowDetail] = useState<boolean>(false);
+  const [setectedTodo, setSelectedTodo] = useState<TodoType | null>(null);
 
   function checkHandler(todoId: number) {
     setTodos((prevTodos) =>
@@ -44,6 +46,15 @@ function App() {
       ...prevTodos,
       { id: Math.random(), text: text, isChecked: false },
     ]);
+  }
+
+  function handleShowTodoDetail(todo: TodoType) {
+    setShowDetail(true);
+    setSelectedTodo(todo);
+  }
+
+  function handleCloseDetail() {
+    setShowDetail(false);
   }
 
   function removeTodoItem(todoId: number) {
