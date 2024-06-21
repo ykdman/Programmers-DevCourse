@@ -3,8 +3,9 @@ import "./App.css";
 import TodoListContainer from "./components/TodoListContainer";
 import TodoGenerator from "./components/TodoGenerator";
 import Clock from "./components/Clock";
+import MyWeather from "./components/MyWeather";
 
-type TodoType = {
+export type TodoType = {
   id: number;
   text: string;
   isChecked: boolean;
@@ -48,6 +49,7 @@ function App() {
     ]);
   }
 
+  // 모달 관련
   function handleShowTodoDetail(todo: TodoType) {
     setShowDetail(true);
     setSelectedTodo(todo);
@@ -77,6 +79,7 @@ function App() {
           checkHandlerFunc={checkHandler}
           removeTodo={removeTodoItem}
         />
+        <MyWeather weather="맑음">일기예보</MyWeather>
       </div>
     </>
   );

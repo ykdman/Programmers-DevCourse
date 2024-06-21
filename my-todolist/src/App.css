@@ -56,6 +56,10 @@ button {
   margin-right: 1rem;
 }
 
+.todo-list-item button {
+  margin-right: 8px;
+}
+
 .todo-gen-button {
   background: #219c90;
   margin: 0 0.8rem;
