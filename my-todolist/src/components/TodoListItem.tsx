@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Button } from "react-bootstrap";
 import TodoModal from "./TodoModal";
 
@@ -17,7 +17,7 @@ function TodoListItem({
   isChecked,
   onRemove,
 }: TodoListItemType) {
-  const [showModal, setShowModal] = useState(false);
+  const [showModal, setShowModal] = useState<boolean>(false);
 
   function handleShowModal() {
     setShowModal(true);
