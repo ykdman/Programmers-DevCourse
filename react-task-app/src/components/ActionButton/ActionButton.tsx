@@ -1,5 +1,5 @@
 const ActionButton = () => {
-  return <div>ActionButton</div>;
+  return <div>A</div>;
 };
 
 export default ActionButton;
