@@ -1,5 +1,5 @@
 // App 전역 스타일링
-
+//#ffb75a
 import { createGlobalTheme, style } from "@vanilla-extract/css";
 
 export const vars = createGlobalTheme(":root", {
@@ -7,7 +7,7 @@ export const vars = createGlobalTheme(":root", {
     main: "#ffa726",
     mainDarker: "#f57c00",
     mainFaded: "#ffb74d",
-    mainFadedBright: "#ffb75a6",
+    mainFadedBright: "#fad5a5",
     list: "rgb(235,236,240)",
     task: "rgb(255,255,255)",
     taskHover: "rgb(245,245,245)",
