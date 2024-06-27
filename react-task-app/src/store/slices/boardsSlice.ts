@@ -35,6 +35,15 @@ type TDeleteBoardAction = {
   boardId: string;
 };
 
+type TSortAction = {
+  boardIndex: number;
+  droppableIdStart: string;
+  droppableIdEnd: string;
+  droppableIndexStart: number;
+  droppableIndexEnd: number;
+  draggableId: string;
+};
+
 const initialState: TBoardState = {
   modalActive: false,
   boardArray: [
@@ -173,7 +182,7 @@ const boardSlice = createSlice({
       );
     },
     removeTask: (state, { payload }: PayloadAction<TRemoveTaskAction>) => {
-      state.boardArray.map((board) =>
+      state.boardArray = state.boardArray.map((board) =>
         board.boardId === payload.boardId
           ? {
               ...board,
@@ -192,7 +201,7 @@ const boardSlice = createSlice({
       );
     },
     updateTask: (state, { payload }: PayloadAction<TAddTaskAction>) => {
-      state.boardArray.map((board) =>
+      state.boardArray = state.boardArray.map((board) =>
         board.boardId === payload.boardId
           ? {
               ...board,
@@ -217,10 +226,33 @@ const boardSlice = createSlice({
         (board) => board.boardId !== payload.boardId
       );
     },
+
+    sort: (state, { payload }: PayloadAction<TSortAction>) => {
+      // 같은 리스트 내
+      if (payload.droppableIdStart === payload.droppableIdEnd) {
+        // call by reference 이므로 객체 주소 복사에 의해 값변경이 이루어짐
+        const list = state.boardArray[payload.boardIndex].lists.find(
+          (list) => list.listId === payload.droppableIdStart
+        );
+        const card = list?.tasks.splice(payload.droppableIndexStart, 1);
+        list?.tasks.splice(payload.droppableIndexEnd, 0, ...card!);
+      } else {
+        // 다른 리스트
+        const listStart = state.boardArray[payload.boardIndex].lists.find(
+          (list) => list.listId === payload.droppableIdStart
+        );
+        const card = listStart!.tasks.splice(payload.droppableIndexStart, 1);
+        const listEnd = state.boardArray[payload.boardIndex].lists.find(
+          (list) => list.listId === payload.droppableIdEnd
+        );
+        listEnd?.tasks.splice(payload.droppableIndexEnd, 0, ...card);
+      }
+    },
   },
 });
 
 export const {
+  sort,
   addBoard,
   removeList,
   setModalActive,
