@@ -78,7 +78,11 @@ const List: FC<TListProps> = ({ list, boardId }) => {
             </div>
           ))}
           {provided.placeholder}
-          <ActionButton boardId={boardId} listId={list.listId} />
+          <ActionButton
+            boardId={boardId}
+            listId={list.listId}
+            activeLists={false}
+          />
         </div>
       )}
     </Droppable>

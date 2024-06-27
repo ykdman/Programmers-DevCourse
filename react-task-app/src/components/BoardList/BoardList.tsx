@@ -1,7 +1,7 @@
 import { FC, useRef, useState } from "react";
-import { useTypedSelector } from "../../hooks/redux";
+import { useTypedDispatch, useTypedSelector } from "../../hooks/redux";
 import SideForm from "./SideForm/SideForm";
-import { FiPlusCircle } from "react-icons/fi";
+import { FiLogIn, FiPlusCircle } from "react-icons/fi";
 import {
   addButton,
   addSection,
@@ -11,6 +11,16 @@ import {
   title,
 } from "./BoardList.css";
 import clsx from "clsx";
+import { GoSignOut } from "react-icons/go";
+import {
+  getAuth,
+  GoogleAuthProvider,
+  signInWithPopup,
+  signOut,
+} from "firebase/auth";
+import { app } from "../../firebase";
+import { resetUser, setUser } from "../../store/slices/userSlice";
+import { useAuth } from "../../hooks/useAuth";
 
 type TBoardListProps = {
   activeBoardId: string;
@@ -24,6 +34,7 @@ const BoardList: FC<TBoardListProps> = ({
   const { boardArray } = useTypedSelector((state) => state.boards);
   const [isFormOpen, setIsFormOpen] = useState<boolean>(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const dispatch = useTypedDispatch();
 
   const toggleFormOpen = () => {
     setIsFormOpen((prevFormState) => !prevFormState);
@@ -35,6 +46,34 @@ const BoardList: FC<TBoardListProps> = ({
   const clickAddButtonHandler = () => {
     setIsFormOpen(true);
     inputRef.current?.focus();
+  };
+
+  //firebase
+  const auth = getAuth(app);
+  const provider = new GoogleAuthProvider();
+  const { isAuth } = useAuth();
+  const loginHandler = () => {
+    signInWithPopup(auth, provider)
+      .then((userCredential) => {
+        console.log(userCredential);
+        dispatch(
+          setUser({
+            email: userCredential.user.email,
+            id: userCredential.user.uid,
+          })
+        );
+      })
+      .catch((error) => console.error(error));
+  };
+
+  const logoutHandler = () => {
+    signOut(auth)
+      .then(() => {
+        dispatch(resetUser());
+      })
+      .catch((error) => {
+        console.error(error);
+      });
   };
 
   return (
@@ -67,6 +106,11 @@ const BoardList: FC<TBoardListProps> = ({
           <SideForm toggleFormOpen={toggleFormOpen} inputRef={inputRef} />
         ) : (
           <FiPlusCircle className={addButton} onClick={clickAddButtonHandler} />
+        )}
+        {isAuth ? (
+          <GoSignOut className={addButton} onClick={logoutHandler} />
+        ) : (
+          <FiLogIn className={addButton} onClick={loginHandler} />
         )}
       </div>
     </div>

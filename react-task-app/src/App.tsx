@@ -55,7 +55,7 @@ function App() {
     }
   };
 
-  const dragHandler = (result) => {
+  const dragHandler = (result: any) => {
     console.log(result);
     const { destination, source, draggableId } = result;
     console.log(destination, source, draggableId);
