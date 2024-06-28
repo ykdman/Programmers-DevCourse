@@ -13,5 +13,4 @@ function MyWeather({ children, weather }: MyWeatherType): JSX.Element {
     </div>
   );
 }
-
 export default MyWeather;

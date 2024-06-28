@@ -9,7 +9,7 @@ import { addLog } from "../../store/slices/loggerSlice";
 import { v4 } from "uuid";
 import { setModalData } from "../../store/slices/modalSlice";
 import { deleteButton, header, listWrapper, name } from "./List.css";
-import { Draggable, Droppable } from "react-beautiful-dnd";
+import { Droppable } from "react-beautiful-dnd";
 
 type TListProps = {
   list: IList;
@@ -36,12 +36,7 @@ const List: FC<TListProps> = ({ list, boardId }) => {
     );
   };
 
-  const handleTaskChange = (
-    boardId: string,
-    listId: string,
-    taskId: string,
-    task: ITask
-  ) => {
+  const handleTaskChange = (boardId: string, listId: string, task: ITask) => {
     dispatch(setModalData({ boardId, listId, task }));
     dispatch(setModalActive(true));
   };
@@ -64,9 +59,7 @@ const List: FC<TListProps> = ({ list, boardId }) => {
           {list.tasks.map((task, idx) => (
             <div
               key={task.taskId}
-              onClick={() =>
-                handleTaskChange(boardId, list.listId, task.taskId, task)
-              }
+              onClick={() => handleTaskChange(boardId, list.listId, task)}
             >
               <Task
                 taskName={task.taskName}
