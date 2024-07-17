@@ -8,28 +8,35 @@ const { StatusCodes } = require("http-status-codes");
  * @param {import("express").NextFunction} next
  */
 const searchBooks = (req, res, next) => {
-  let { category_id, limit, currentpage } = req.query;
+  let { category_id, limit, currentpage: currentPage } = req.query;
   const token = req.token;
 
-  if (!limit || !currentpage) {
+  if (!limit || !currentPage) {
     limit = !limit ? 5 : limit;
-    currentpage = !currentpage ? 1 : currentpage;
+    currentPage = !currentPage ? 1 : currentPage;
   }
 
-  const offset = +limit * (+currentpage - 1);
+  const offset = +limit * (+currentPage - 1);
 
   //카테고리 검색
   if (category_id) {
-    let sqlQuery = token
-      ? `
+    // let sqlQuery = token
+    //   ? `
+    // SELECT *, (SELECT COUNT(*) from likes WHERE book_id = books.id) AS likes FROM books LEFT
+    // JOIN category ON books.category_id = category.category_id
+    // WHERE books.category_id = ?
+    // LIMIT ? OFFSET ?;
+    // `
+    //   : `
+    // SELECT * FROM books LEFT
+    // JOIN category ON books.category_id = category.category_id
+    // WHERE books.category_id = ?
+    // LIMIT ? OFFSET ?;
+    // `;
+
+    let sqlQuery = `
     SELECT *, (SELECT COUNT(*) from likes WHERE book_id = books.id) AS likes FROM books LEFT 
-    JOIN category ON books.category_id = category.id
-    WHERE books.category_id = ?
-    LIMIT ? OFFSET ?;
-    `
-      : `
-    SELECT * FROM books LEFT 
-    JOIN category ON books.category_id = category.id
+    JOIN category ON books.category_id = category.category_id
     WHERE books.category_id = ?
     LIMIT ? OFFSET ?;
     `;
@@ -42,9 +49,11 @@ const searchBooks = (req, res, next) => {
           console.log(err);
           return res.status(StatusCodes.BAD_REQUEST);
         }
-
         if (results.length > 0) {
-          return res.status(StatusCodes.OK).json(results);
+          return res.status(StatusCodes.OK).json({
+            books: [...results],
+            pagination: { totalBooks: results.length, currentPage },
+          });
         } else {
           return res.status(StatusCodes.NOT_FOUND).end();
         }
@@ -70,33 +79,37 @@ const searchBooks = (req, res, next) => {
       }
 
       if (results[0]) {
-        const books = results.map((book) => {
-          const resultBook = token
-            ? {
-                id: book.id,
-                title: book.title,
-                summary: book.summary,
-                author: book.author,
-                price: book.price,
-                pub_date: book.pub_date,
-                likes: book.likes,
-              }
-            : {
-                id: book.id,
-                title: book.title,
-                summary: book.summary,
-                author: book.author,
-                price: book.price,
-                pub_date: book.pub_date,
-              };
-          return resultBook;
-        });
+        // const books = results.map((book) => {
+        //   const resultBook = token
+        //     ? {
+        //         id: book.id,
+        //         img : book.img,
+        //         title: book.title,
+        //         summary: book.summary,
+        //         author: book.author,
+        //         price: book.price,
+        //         pub_date: book.pub_date,
+        //         likes: book.likes,
+        //       }
+        //     : {
+        //         id: book.id,
+        //         img : book.img,
+        //         title: book.title,
+        //         summary: book.summary,
+        //         author: book.author,
+        //         price: book.price,
+        //         pub_date: book.pub_date,
+        //       };
+        //   return resultBook;
+        // });
+        const books = [...results];
 
         const totalBooks = books.length;
-        currentpage = +currentpage;
+        currentPage = +currentPage;
+
         return res
           .status(StatusCodes.OK)
-          .json({ books: books, totalBooks, currentpage });
+          .json({ books: books, pagination: { totalBooks, currentPage } });
       }
     });
   }

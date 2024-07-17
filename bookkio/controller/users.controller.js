@@ -12,7 +12,11 @@ dotenv.config();
  * @param {import("express").NextFunction} next
  */
 const userJoin = (req, res, next) => {
-  const { email, password, username } = req.body;
+  const { email, password } = req.body;
+  let { username } = req.body;
+  if (!username) {
+    username = "test";
+  }
 
   // crypt password
   const salt = crypto.randomBytes(10).toString("base64");
@@ -36,12 +40,12 @@ const userJoin = (req, res, next) => {
     if (!result[0]) {
       // no rows => 200
       sqlQuery = `INSERT INTO users 
-      (email, username, password, salt) 
+      (email, password, salt) 
       VALUES 
-      (?, ?, ?, ?)`;
+      (?, ?, ?)`;
       dbConnection.query(
         sqlQuery,
-        [email, username, hashedPassword, salt],
+        [email, hashedPassword, salt],
         (err, result) => {
           if (err) {
             return res.json(err);
@@ -105,7 +109,7 @@ const userLogin = (req, res, next) => {
         httpOnly: true,
       });
 
-      return res.status(StatusCodes.OK).json({ message: "로그인되었습니다." });
+      return res.status(StatusCodes.OK).json({ ...result[0], token: token });
     } else {
       // email 미 존재시, 404
       return res

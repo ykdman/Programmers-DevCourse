@@ -14,19 +14,19 @@ const { requestValidator } = require("../utils/validator");
 // 회원가입
 router.post(
   "/join",
-  [
-    body("email")
-      .notEmpty()
-      .withMessage("이메일 정보를 입력해주세요.")
-      .isEmail()
-      .withMessage("이메일을 올바르게 입력해주세요."),
-    body("password").notEmpty().withMessage("비밀번호를 입력해주세요."),
-    body("username")
-      .notEmpty()
-      .withMessage("사용자 이름을 입력해주세요")
-      .isLength({ min: 2, max: 5 }),
-    requestValidator,
-  ],
+  // [
+  //   body("email")
+  //     .notEmpty()
+  //     .withMessage("이메일 정보를 입력해주세요.")
+  //     .isEmail()
+  //     .withMessage("이메일을 올바르게 입력해주세요."),
+  //   body("password").notEmpty().withMessage("비밀번호를 입력해주세요."),
+  //   body("username")
+  //     .notEmpty()
+  //     .withMessage("사용자 이름을 입력해주세요")
+  //     .isLength({ min: 2, max: 5 }),
+  //   requestValidator,
+  // ],
   userJoin
 );
 

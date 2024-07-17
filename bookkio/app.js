@@ -3,6 +3,7 @@ const express = require("express");
 const path = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
+const cors = require("cors");
 
 const usersRouter = require("./routes/users.router.js");
 const booksRouter = require("./routes/books.route.js");
@@ -14,6 +15,11 @@ const categoryRouter = require("./routes/category.route.js");
 
 const app = express();
 
+const corsOptions = {
+  origin: "http://localhost:3000", // 허락하고자 하는 요청 주소
+  credentials: true, // true로 하면 설정한 내용을 response 헤더에 추가 해줍니다.
+};
+
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
@@ -23,6 +29,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
+app.use(cors(corsOptions)); // config 추가
 
 // Routing
 app.use("/users", usersRouter);

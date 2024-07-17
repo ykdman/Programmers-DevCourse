@@ -15,7 +15,14 @@ const getCategories = (req, res) => {
     }
 
     if (results.length > 0) {
-      return res.status(StatusCodes.OK).json(results);
+      return res
+        .status(StatusCodes.OK)
+        .json(
+          results.map((category) => ({
+            id: category["category_id"],
+            name: category["category_name"],
+          }))
+        );
     } else {
       return res.status(StatusCodes.NOT_FOUND).end();
     }
